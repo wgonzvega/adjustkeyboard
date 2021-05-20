@@ -1,5 +1,5 @@
 function gettenant {
-    Clear-Host
+    Clear-Host 
     #Clear-AzContext
     Connect-AzAccount #-WarningAction:SilentlyContinue
     $tenant = Get-AzTenant #-WarningAction:SilentlyContinue
