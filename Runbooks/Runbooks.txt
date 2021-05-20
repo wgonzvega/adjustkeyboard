@@ -1,0 +1,210 @@
+Nombre suscripcion: [Evtc-CollectEnhancements - 78106]
+
+Nombre Automation Runbook: [aut-CollectEnhancements-prod-runbook1]
+
+Subscription Id : [ef9f3dad-5d66-481c-9ed7-d567b8678d7a]
+
+Nombre del Runbook: CreateTagtoAllResourceGroups
+############################################################################
+#                             Walter Gonzalez                              #
+#                                Mayo 2020                                 #
+#                                                                          # 
+############################################################################
+
+
+
+# Update Tags - Applied to all the resources in a subscription
+############################################################################
+#                    CHANGE THIS PER SUBSCRIPTION                          #
+############################################################################
+$mySubscription = "[ef9f3dad-5d66-481c-9ed7-d567b8678d7a]"
+
+
+
+# RunBook for Update Tags - Applied at the RG level
+
+
+
+
+#Parameters -----------------------------------------------------------------------------------------------------
+#Code of the application the resource is associated with in the CMDB.
+$applicationCode = "TBD"
+
+#Name of the application, service, or workload the resource is associated with in the CMDB
+$applicationName = "TBD" 
+
+#Name of the module or component associated with the application.
+$applicationModule = "TBD" 
+
+#Evertec group responsible for the implementation of the project
+$group = "Digital Solutions" 
+
+#Owner of the application, workload, or service.(email)
+$ownerName = "daphne.acosta@evertecinc.com" 
+
+#Accounting cost center associated with this resource
+
+$costCenter = "78690"
+
+#Deployment environment of this application, workload, or service
+$env = "TBD"
+
+#Person responsible for approving costs related to this resource.(email)
+$approver = "daphne.acosta@evertecinc.com"
+
+#Top-level division of your company that owns the workload the resource belongs to.
+#In smaller organizations, this may represent a single corporate or shared top-level organizational element
+$businessUnit = "Evertec Applications & Processes"
+
+#User that requested the creation of this application.(email)
+$requestor = "jose.gonzalez@evertecinc.com"
+
+#Service Level Agreement level of this application, workload, or service
+$serviceClass = "TBD"
+
+#Date when this application, workload, or service was first deployed
+$startDate = "2019"
+#End of parameters----------------------------------------------------------------------------------------------------
+
+
+
+#Start
+# Ensures you do not inherit an AzContext in your runbook
+Disable-AzContextAutosave –Scope Process
+
+#Authenticate using the account configured when the automation account was created
+$connection = Get-AutomationConnection -Name AzureRunAsConnection
+
+
+while(!($connectionResult) -And ($logonAttempt -le 10))
+{
+    $LogonAttempt++
+    # Logging in to Azure...
+    $connectionResult =    Connect-AzAccount `
+                               -ServicePrincipal `
+                               -Tenant $connection.TenantID `
+                               -ApplicationId $connection.ApplicationID `
+                               -CertificateThumbprint $connection.CertificateThumbprint
+
+    Start-Sleep -Seconds 30
+}
+
+
+Select-AzSubscription -SubscriptionId $mySubscription
+
+#Update tags for all services
+
+$allResourcesGroup = Get-AzResourceGroup
+$tags = @{"applicationCode" = $applicationCode; "applicationName" = $applicationName;"applicationModule" = $applicationModule; "group" = $group; "ownerName" = $ownerName;"costCenter" = $costCenter; "env" = $env; "approver"= $approver; "businessUnit"= $businessUnit; "requestor" = $requestor; "serviceClass" = $serviceClass; "startDate" = $startDate}
+foreach($resourceList in $allResourcesGroup){
+	write-output $resourceList.ResourceId
+	write-output $resourceList.Location
+	write-output $resourceList.Tags
+	if ($resourceList.Tags.applicationCode -eq $null){
+        $resourceGroup = Get-AzResourceGroup -Name $resourceList.ResourceGroupName
+	    Update-AzTag -ResourceId $resourceGroup.ResourceId -tag $tags -Operation Merge
+    }
+}
+
+
+--------------------------------------------------------------------------------------------------------------------------
+
+
+CreateTagtoAllResources
+############################################################################
+#                             Walter Gonzalez                              #
+#                                Mayo 2020                                 #
+#                                                                          # 
+############################################################################
+
+
+
+# Update Tags - Applied to all the resources in a subscription
+############################################################################
+#                    CHANGE THIS PER SUBSCRIPTION                          #
+############################################################################
+$mySubscription = "[ef9f3dad-5d66-481c-9ed7-d567b8678d7a]"
+
+
+
+# RunBook for Update Tags - Applied at the Subscription level
+
+
+
+
+#Parameters -----------------------------------------------------------------------------------------------------
+#Code of the application the resource is associated with in the CMDB.
+$applicationCode = "TBD"
+
+#Name of the application, service, or workload the resource is associated with in the CMDB
+$applicationName = "TBD" 
+
+#Name of the module or component associated with the application.
+$applicationModule = "TBD" 
+
+#Evertec group responsible for the implementation of the project
+$group = "Digital Solutions" 
+
+#Owner of the application, workload, or service.(email)
+$ownerName = "erika.perezcoffie@evertecinc.com" 
+
+#Accounting cost center associated with this resource
+
+$costCenter = "78106"
+
+#Deployment environment of this application, workload, or service
+$env = "Prod"
+
+#Person responsible for approving costs related to this resource.(email)
+$approver = "erika.perezcoffie.acosta@evertecinc.com"
+
+#Top-level division of your company that owns the workload the resource belongs to.
+#In smaller organizations, this may represent a single corporate or shared top-level organizational element
+$businessUnit = "Product & Innovation"
+
+#User that requested the creation of this application.(email)
+$requestor = "carmen.rodriguez@evertecinc.com"
+
+#Service Level Agreement level of this application, workload, or service
+$serviceClass = "TBD"
+
+#Date when this application, workload, or service was first deployed
+$startDate = "2020"
+#End of parameters----------------------------------------------------------------------------------------------------
+
+
+#Start
+# Ensures you do not inherit an AzContext in your runbook
+Disable-AzContextAutosave –Scope Process
+
+#Authenticate using the account configured when the automation account was created
+$connection = Get-AutomationConnection -Name AzureRunAsConnection
+
+
+while(!($connectionResult) -And ($logonAttempt -le 10))
+{
+    $LogonAttempt++
+    # Logging in to Azure...
+    $connectionResult =    Connect-AzAccount `
+                               -ServicePrincipal `
+                               -Tenant $connection.TenantID `
+                               -ApplicationId $connection.ApplicationID `
+                               -CertificateThumbprint $connection.CertificateThumbprint
+
+    Start-Sleep -Seconds 30
+}
+
+
+Select-AzSubscription -SubscriptionId $mySubscription
+
+#Update tags for all services
+
+$allResources = Get-AzResource | Select Id,Tags
+$tags = @{"applicationCode" = $applicationCode; "applicationName" = $applicationName;"applicationModule" = $applicationModule; "group" = $group; "ownerName" = $ownerName;"costCenter" = $costCenter; "env" = $env; "approver"= $approver; "businessUnit"= $businessUnit; "requestor" = $requestor; "serviceClass" = $serviceClass; "startDate" = $startDate}
+foreach($resourceList in $allResources){
+	write-output $resourceList.id
+	write-output $resourceList.tags
+	Update-AzTag -ResourceId $resourceList.id -Tag $tags -Operation Merge
+
+}
+

@@ -1,0 +1,27 @@
+############################################
+#          Enterprise Architecture         #
+#              Walter Gonzalez             #
+#               August 2020                #
+############################################
+
+
+#Crear usuarios de operaciones a nivel de Management Groups
+
+
+#########################################
+# Must be run from the Azure PowerShell #
+#########################################
+
+
+#variables
+
+
+
+#funcs
+
+function creatUsers {
+	New-AzRoleAssignment -SignInName lila.pagan@evertecinc.com -RoleDefinitionName "Owner" -Scope /providers/Microsoft.Management/managementGroups/Test
+}
+
+#start
+createUsers

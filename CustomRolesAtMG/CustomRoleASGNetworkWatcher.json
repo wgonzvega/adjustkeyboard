@@ -1,0 +1,30 @@
+{
+    "properties": {
+        "roleName": "ASG Network Watcher",
+        "IsCustom": true,
+        "description": "Custom Role for ASG group to create alerts.",
+        "assignableScopes": [
+            "/providers/microsoft.management/managementGroups/EvertecLLCManagementGroup"
+        ],
+        "permissions": [
+            {
+                "actions": [
+                    "Microsoft.Network/networkWatchers/connectionMonitors/delete",
+                    "Microsoft.Network/networkWatchers/connectionMonitors/write",
+                    "Microsoft.Network/networkWatchers/connectionMonitors/read",
+                    "Microsoft.Network/networkWatchers/connectionMonitors/query/action",
+                    "Microsoft.Network/networkWatchers/connectionMonitors/stop/action",
+                    "Microsoft.Network/networkWatchers/connectionMonitors/start/action",
+                    "Microsoft.Network/networkWatchers/read",
+                    "Microsoft.Network/networkWatchers/write",
+                    "Microsoft.Network/networkWatchers/delete",
+                    "Microsoft.Compute/virtualMachines/write",
+                    "Microsoft.Compute/virtualMachines/read"
+                ],
+                "notActions": [],
+                "dataActions": [],
+                "notDataActions": []
+            }
+        ]
+    }
+}

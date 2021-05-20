@@ -1,0 +1,70 @@
+{
+    "properties": {
+        "roleName": "Network Watcher Managements",
+        "IsCustom": true,
+        "description": "Custom Role for Network Watcher Management, read, write and delete for Network Engineering Team.",
+        "assignableScopes": [
+            "/providers/microsoft.management/managementGroups/EvertecLLCManagementGroup"
+        ],
+        "permissions": [
+            {
+                "actions": [
+                    "Microsoft.Network/networkWatchers/read",
+                    "Microsoft.Network/networkWatchers/delete",
+                    "Microsoft.Network/networkWatchers/write",
+                    "Microsoft.Compute/virtualMachineScaleSets/write",
+                    "Microsoft.Storage/storageAccounts/write",
+                    "Microsoft.Compute/virtualMachines/write",
+                    "Microsoft.Storage/storageAccounts/listAccountSas/action",
+                    "Microsoft.Storage/storageAccounts/listkeys/action",
+                    "Microsoft.Web/connections/*",
+                    "microsoft.web/sites/networktrace/action",
+                    "microsoft.web/sites/networkConfig/read",
+                    "microsoft.web/sites/networkConfig/write",
+                    "microsoft.web/sites/networkConfig/delete",
+                    "microsoft.web/sites/networktraces/operationresults/read",
+                    "microsoft.web/hostingenvironments/inboundnetworkdependenciesendpoints/read",
+                    "microsoft.web/hostingenvironments/outboundnetworkdependenciesendpoints/read",
+                    "microsoft.web/serverfarms/virtualnetworkconnections/read",
+                    "microsoft.web/serverfarms/virtualnetworkconnections/gateways/write",
+                    "microsoft.web/serverfarms/virtualnetworkconnections/routes/delete",
+                    "microsoft.web/serverfarms/virtualnetworkconnections/routes/read",
+                    "microsoft.web/serverfarms/virtualnetworkconnections/routes/write",
+                    "Microsoft.Web/locations/GetNetworkPolicies/action",
+                    "microsoft.web/locations/deleteVirtualNetworkOrSubnets/action",
+                    "microsoft.web/sites/slots/networktrace/action",
+                    "microsoft.web/sites/slots/networktraces/operationresults/read",
+                    "microsoft.web/sites/slots/virtualnetworkconnections/delete",
+                    "microsoft.web/sites/slots/virtualnetworkconnections/read",
+                    "microsoft.web/sites/slots/virtualnetworkconnections/write",
+                    "microsoft.web/sites/slots/virtualnetworkconnections/gateways/write",
+                    "microsoft.web/sites/privateaccess/read",
+                    "microsoft.web/sites/virtualnetworkconnections/delete",
+                    "microsoft.web/sites/virtualnetworkconnections/read",
+                    "microsoft.web/sites/virtualnetworkconnections/write",
+                    "microsoft.web/sites/virtualnetworkconnections/gateways/read",
+                    "microsoft.web/sites/virtualnetworkconnections/gateways/write",
+                    "Microsoft.Web/sites/Read",
+                    "Microsoft.Web/sites/Write",
+                    "Microsoft.Web/sites/Delete",
+                    "Microsoft.Web/sites/config/Read",
+                    "microsoft.web/sites/config/delete",
+                    "microsoft.web/sites/extensions/delete",
+                    "microsoft.web/sites/extensions/read",
+                    "microsoft.web/sites/extensions/write",
+                    "microsoft.web/sites/siteextensions/delete",
+                    "microsoft.web/sites/siteextensions/read",
+                    "microsoft.web/sites/siteextensions/write",
+                    "microsoft.web/sites/networkConfig/read",
+                    "microsoft.web/sites/networkConfig/write",
+                    "microsoft.web/sites/networkConfig/delete",
+                    "Microsoft.Web/sites/config/list/Action",
+                    "Microsoft.Web/sites/config/Write"
+                ],
+                "notActions": [],
+                "dataActions": [],
+                "notDataActions": []
+            }
+        ]
+    }
+}

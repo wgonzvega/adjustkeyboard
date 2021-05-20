@@ -1,0 +1,40 @@
+{"properties":
+    {
+        "roleName":"Virtual Machine Update Manager pvot ",
+        "description":"Lets you manage patching on virtual machines",
+        "assignableScopes":["/subscriptions/e5633f93-c7dd-4e44-9546-2a581f27daea"],
+        "permissions":[
+           {
+            "actions":[
+                "Microsoft.Authorization/*/read",
+                "Microsoft.Compute/availabilitySets/*",
+                "Microsoft.Compute/locations/*",
+                "Microsoft.Compute/virtualMachines/*",
+                "Microsoft.Compute/virtualMachineScaleSets/*",
+                "Microsoft.DevTestLab/schedules/*",
+                "Microsoft.Insights/alertRules/*",
+                "Microsoft.Network/applicationGateways/backendAddressPools/join/action",
+                "Microsoft.Network/loadBalancers/read","Microsoft.Network/locations/*",
+                "Microsoft.Network/networkSecurityGroups/join/action",
+                "Microsoft.Network/networkSecurityGroups/read",
+                "Microsoft.Network/publicIPAddresses/join/action",
+                "Microsoft.Network/publicIPAddresses/read",
+                "Microsoft.Network/virtualNetworks/read",
+                "Microsoft.RecoveryServices/locations/*",
+                "Microsoft.RecoveryServices/Vaults/backupPolicies/read",
+                "Microsoft.RecoveryServices/Vaults/read",
+                "Microsoft.RecoveryServices/Vaults/usages/read",
+                "Microsoft.ResourceHealth/availabilityStatuses/read",
+                "Microsoft.Resources/deployments/*",
+                "Microsoft.Resources/subscriptions/resourceGroups/read",
+                "Microsoft.SqlVirtualMachine/*",
+                "Microsoft.Storage/storageAccounts/read",
+                "Microsoft.Support/*"],
+                "notActions":[
+                    "Microsoft.Compute/virtualMachines/delete"],
+                    "dataActions":[],
+                    "notDataActions":[]
+            }
+        ]
+    }
+}

@@ -1,0 +1,20 @@
+{"properties":
+    {"roleName":"Stop Restart Start VM pvot",
+        "description":"Stop Restart Start VM",
+        "assignableScopes":["/subscriptions/e5633f93-c7dd-4e44-9546-2a581f27daea"],
+        "permissions":[
+            {
+                "actions":[
+                    "Microsoft.Compute/*/read",
+                    "Microsoft.Network/*/read",
+                    "Microsoft.Storage/*/read",
+                    "Microsoft.Compute/virtualMachines/start/action",
+                    "Microsoft.Compute/virtualMachines/restart/action"
+                    ],
+                "notActions":[],
+                "dataActions":[],
+                "notDataActions":[]
+            }
+        ]
+    }
+}

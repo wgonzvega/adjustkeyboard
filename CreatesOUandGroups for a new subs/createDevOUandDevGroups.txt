@@ -1,0 +1,26 @@
+#Enterprise Architecture
+# 2021
+#Powershell script to create OU and dev groups in AD for a new cloud subscription
+
+
+#Variables
+$basegroupname1 = "AZ-b24a898b-e089-4d30-b1b6-561f81d4bfa1"
+$description1 = "Azure Subscription"
+$grouppath1 = "OU=cloud,DC=Test,DC=Com"
+
+#Constants
+$ouPath = "DC=Test,DC=Com"
+
+$ouName = "Cloud"
+$suffix = @("-DEV","-DEV-TL","-DEV-SP","-POC","-POC-TL","-POC-SP","-PRD-PO")
+
+
+#Create an OU
+#New-ADOrganizationalUnit -Name $ouName -Path $ouPath -Description $ouName -ProtectedFromAccidentalDeletion $True
+
+#Create Groups
+foreach ($element in $suffix) {
+    $groupname1 = $basegroupname1+$element
+    New-ADGroup -Name $groupname1 -SamAccountName $groupname1 -GroupCategory Security -GroupScope Global -DisplayName $groupname1 -Path $grouppath1 -Description $description1
+}
+
