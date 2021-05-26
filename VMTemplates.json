@@ -1,0 +1,203 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "location": {
+            "type": "string",
+            "defaultValue": "eastus",
+            "allowedValues": [
+                "eastus",
+                "westus"
+            ]
+        },
+        "location2": {
+        "type": "object",
+        "defaultValue": "[resourceGroup()]",
+        "metadata": {
+            "description": "Location for the resources."
+        }
+        },
+        "VirtualNetworkName": {
+            "type": "string",
+            "allowedValues": [
+                "rg-dontdelete01-vnet"
+            ],
+            "metadata": {
+                "description": "Select the correct vnet name"
+            }
+        },        
+        "subnetName": {
+            "type": "string",
+            "allowedValues": [
+                "default"
+            ],
+            "metadata": {
+                "description": "Select the correct subnet"
+            }
+        },
+        "VirtualMachineName": {
+            "type": "string"
+        },
+        "virtualMachineRG": {
+            "type": "string",
+            "allowedValues": [
+                "rg-dontdelete01"
+            ],
+            "metadata": {
+                "description": "Select the Resource Group for the correct subscription"
+            }
+        },
+        "osDiskType": {
+            "type": "string",
+            "defaultValue": "StandardSSD_LRS",
+            "allowedValues": [
+                "Premium_LRS",
+                "StandardSSD_LRS"
+            ]
+        },
+        "virtualMachineSize": {
+            "type": "string",
+            "defaultValue": "Standard_B2ms",
+            "allowedValues": [
+                "Standard_B2ms",
+                "Standard_F4s",
+                "Standard_D4s_v3",
+                "Standard_E16s_v3",
+                "Standard_A2_v2",
+                "Standard_F16s_v2",
+                "Standard_D2s_v3",
+                "Standard_DS12_v2",
+                "Standard_F16s",
+                "Standard_F4s_v2",
+                "Standard_E2s_v3",
+                "Standard_E4s_v3",
+                "Standard_B4ms"
+            ],
+            "metadata": {
+                "description": "Select the proper VM Size"
+            }
+        },
+        "osType":{
+            "type": "string",
+            "defaultValue": "2019-Datacenter",
+            "allowedValues": [
+                "2016-Datacenter-with-Containers",
+                "2016-Datacenter",
+                "2019-Datacenter-with-Containers",
+                "2019-Datacenter"
+            ]
+        },
+        "adminUsername": {
+            "type": "string",
+            "defaultValue": "evtcladm"
+        },
+        "adminPassword": {
+            "type": "secureString"
+        },
+        "zone": {
+            "type": "string",
+            "allowedValues": [
+                "1",
+                "2"
+            ],
+            "metadata": {
+                "description": "If this is the primary server Select 1, select 2 for the DRS West secondary server."
+            }
+        }
+    },
+    "variables": {
+        "vnetname": "[parameters('VirtualNetworkName')]",
+        "networkInterfaceName": "[concat(parameters('VirtualMachineName'), '-', 'nic')]",
+        "vnetID": "[resourceId('Microsoft.Network/virtualnetworks', variables('vnetname'))]",
+        "subnetRef": "[concat(variables('vnetId'), '/subnets/', parameters('subnetName'))]"
+    },
+    "resources": [
+        {
+            "name": "[variables('networkInterfaceName')]",
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2018-10-01",
+            "location": "[parameters('location')]",
+            "dependsOn": [],
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig1",
+                        "properties": {
+                            "subnet": {
+                                "id": "[variables('subnetRef')]"
+                            },
+                            "privateIPAllocationMethod": "Dynamic"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "[parameters('virtualMachineName')]",
+            "type": "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2018-10-01",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[concat('Microsoft.Network/networkInterfaces/', variables('networkInterfaceName'))]"
+            ],
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "[parameters('virtualMachineSize')]"
+                },
+                "storageProfile": {
+                    "osDisk": {
+                        "createOption": "fromImage",
+                        "managedDisk": {
+                            "storageAccountType": "[parameters('osDiskType')]"
+                        }
+                    },
+                    "dataDisks": [
+                        {
+                            "diskSizeGB": 128,
+                            "lun": 0,
+                            "createOption": "Empty"
+                        }
+                    ],
+                
+                    "imageReference": {
+                        "publisher": "MicrosoftWindowsServer",
+                        "offer": "WindowsServer",
+                        "sku": "[parameters('osType')]",
+                        "version": "latest"
+                    }
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('networkInterfaceName'))]"
+                        }
+                    ]
+                },
+                "osProfile": {
+                    "computerName": "[parameters('VirtualMachineName')]",
+                    "adminUsername": "[parameters('adminUsername')]",
+                    "adminPassword": "[parameters('adminPassword')]",
+                    "windowsConfiguration": {
+                        "enableAutomaticUpdates": true,
+                        "provisionVmAgent": true
+                    }
+                }
+            },
+            "diagnosticsProfile": {
+                "bootDiagnostics": {
+                "enabled": true,
+                "storageUri": "[reference(resourceId('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))).primaryEndpoints.blob]"
+                }
+            },
+            "zones": [
+                "[parameters('zone')]"
+            ]
+        }
+    ],
+    "outputs": {
+        "adminUsername": {
+            "type": "string",
+            "value": "[parameters('adminUsername')]"
+        }
+    }
+}
