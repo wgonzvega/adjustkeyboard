@@ -2,14 +2,12 @@
 
 
 #Global variables
-#Evertecllc
-<#$tenant1 = "2b5b7d77-f19b-4c6d-b180-5768c09ad43b"
+
+#For Evertecllc Chile & Multiclientes
+$tenant1 = "2b5b7d77-f19b-4c6d-b180-5768c09ad43b"
 $sub1 = "3e527659-51a8-4f6e-9214-c5a728456508"
 $sub2 = "ea2697d1-9ec5-46ed-8bc6-c81bea17abd1"
-$subname = ""#>
-#Private acc
-$tenant1 = "3eca7dff-7c23-43b9-9551-7365b93d4f97"
-$sub1 = "6cfeca43-6518-489d-9a83-f0a9bb0cba5b"
+
 $subname = ""
 $selvm1 = ""
 $selvm2 = ""
@@ -29,9 +27,8 @@ function doaction {
     #Set the subscription
     write-host "Tenant Id:" $tenant1
     write-host "`n`nApplications:"
-    
-    #write-host "`n1- Paya" "& Paye" "`n2- Pays"
-    write-host "`n1- Pay as you go"
+    write-host "`n1- Paya" "& Paye" "`n2- Pays"
+
     
     $listrec = Read-Host "`nPlease select the application that you want to work with (Ctrl/C to cancel)"
     
@@ -48,7 +45,7 @@ function doaction {
             write-host "Subscription" $subname.Name ", connected"
             dovmaction
         }
-        default { Read-Host "`nEntered value is out of range, error in action value`nPress any key to continue (Ctrl/C to cancel)";doaction }
+        default { Read-Host "`nEntered value is out of range, error in action value`nPress any key to continue (Ctrl/C to cancel)"; doaction }
     }
 
 }
@@ -65,9 +62,7 @@ function dovmaction {
 
     #check if they are equals
     $selvm1 = $selvm1.ToLower()
-    #$selrg1 = $selrg1.ToLower()
     $selvm2 = $selvm2.ToLower()
-    #$selrg2 = $selrg2.ToLower()
     if ($selvm1 -eq $selvm2) {
         $equalname = "y"
     }
@@ -92,20 +87,30 @@ function dovmaction {
     $foundit = "0"
     write-host "`nLooking for VM" $selvm1 "at each resource group, please wait..."
     
+    $interact = 0
     foreach ($rec in $allRG) {
-        $vmrec = Get-AzVM -ResourceGroupName $rec.ResourceGroupName -Name $selvm1 -ErrorAction:SilentlyContinue
-        if ($vmrec.name -eq $selvm1) {
-            $foundit = "1"
-            $foundrg = $rec.ResourceGroupName  
-            stopstartvm
-        } 
+        $interact ++
+        if ($interact -eq 10) {
+            $interact = 0
+            write-host "Continuing looking for server, please wait..."
+        }
+        #$vmrec = Get-AzVM -ResourceGroupName $rec.ResourceGroupName -Name $selvm1 -ErrorAction:SilentlyContinue
+        $vmrec = Get-AzVM -ResourceGroupName $rec.ResourceGroupName
+        foreach ($vmlist in $vmrec) {
+            if ($vmlist.name -eq $selvm1) {
+                $foundit = "1"
+                $foundrg = $rec.ResourceGroupName  
+            
+            } 
+        }
     }
-
+    stopstartvm
 }
 
-function stopstartvm{
+function stopstartvm {
     if ($foundit -eq "1") {
         write-host "`n`nServer" $selvm1 "found at" $foundrg "Resource Group."
+        write-host "Getting server actual state. Please wait..."
         $vm1 = Get-AzVM -ResourceGroupName $foundrg -Name $selvm1 -Status
         $status = $vm1.statuses  
         write-host "`nVM actual Status is:" $status.displaystatus
@@ -133,16 +138,18 @@ function stopstartvm{
                 }
                 ; break
             }
-            default { Read-Host "`nEntered value is out of range, error in value.  Press any key to continue (Ctrl/C to cancel)" 
-            clear-host
-            ;stopstartvm }
+            default {
+                Read-Host "`nEntered value is out of range, error in value.  Press any key to continue (Ctrl/C to cancel)" 
+                clear-host
+                ; stopstartvm 
+            }
         }
     }
     else {
-        Read-Host "Server not found.  Press any key to continue (Ctrl/C to cancel)";doaction
+        Read-Host "Server not found.  Press any key to continue (Ctrl/C to cancel)"; doaction
     }
 }
 
 #function calls
- doaction
+doaction
 
