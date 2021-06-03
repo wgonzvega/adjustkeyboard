@@ -36,12 +36,13 @@ $subname = ""#>
 $tenant1 = "3eca7dff-7c23-43b9-9551-7365b93d4f97"
 $sub1 = "6cfeca43-6518-489d-9a83-f0a9bb0cba5b"
 $subname = ""
-Clear-AzContext
+
 Clear-Host 
+    <#Clear-AzContext
     Connect-AzAccount #-WarningAction:SilentlyContinue
     $seltenant = Get-AzTenant -TenantId $tenant1  
     write-host "Selected tenant:"$seltenant.name
-    
+    #>
 
 #Set the subscription
 write-host "Tenant Id:" $tenant1
@@ -64,30 +65,6 @@ switch ($listrec){
     default { "`nSEntered value is out of range, error in action value"; break }
 }
 
-<#
-#set the environment
-write-host "`n1- Dev" "`n2- Crt" "`n3- Uat" "`n4- Prd"
-$listrec = Read-Host "`nPlease enter the environment that you want to work with (Ctrl/C to cancel)"
-switch ($listrec){
-    "1" {
-        write-host "Dev"
-        break
-    }
-    "2" {
-        write-host "Crt"
-        break
-    }
-    "3" {
-        write-host "Uat"
-        break
-    }
-    "4" {
-        write-host "Prd"
-        break
-    }
-    default { "`nSEntered value is out of range, error in action value"; break }
-}
-#>
 
 #setvmname1
 $selvm1 = Read-Host "`nPlease enter the Virtual Machine name that you want to work with (Ctrl/C to cancel)"
@@ -108,17 +85,14 @@ $selvm2 = $selvm2.ToLower()
 
 if ($selvm1 -eq $selvm2){
     $equalname = "y"
-}else {
+}else{
+    write-host "The name for the server and the confirmation name must match.  Input values not equals."
     $equalname = "n"
+    ;break
 }
 
-if ($equalname = "y"){
-    write-host "Equals"
-}else {
-    write-host "Not equal"
-}
-write-host "Answer #1" $selvm1
-write-host "Answer #2" $selvm2
+
+write-host "`nLooking for server at each Resource Group"
 
 #get the vm and the real resource group, compare them
 <#
@@ -137,6 +111,24 @@ foreach ($rec in $allRG){
 }
 if($foundit -eq "1") {
     write-host "Server" $selvm1 "found at" $foundrg
+    write-host "`nYou have selected..."
+    write-host "Virtual machine   : " $selvm1
+    write-host "From subscription : " $subname.Name
+    write-host "In the tenant     : " $seltenant.Name
+    $actionrec = Read-Host "`nPlease enter the number of the action that you want to perform (1 = Stop(Deallocate), 2= Start, Ctrl/C to cancel)"
+    switch ($actionrec) {
+        "1" {
+            write-host "`nStopping server", $selvm1 , "from Resource Group" $foundrg, "this could take several minutes, please confirm..."
+            Stop-AzVM -ResourceGroupName $foundrg -Name $selvm1
+            ; break
+        }
+        "2" {
+            write-host "`nStarting server", $selvm1 , "from Resource Group" $foundrg, "this could take several minutes, please confirm..."
+            Start-AzVM -ResourceGroupName $foundrg -Name $selvm1 -Confirm
+            ; break
+        }
+        default { "`nSEntered value is out of range, error in action value"; break }
+    }
 }else {
     write-host "Server not found"
 }
