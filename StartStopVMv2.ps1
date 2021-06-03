@@ -27,7 +27,7 @@ function doaction {
     #Set the subscription
     write-host "Tenant Id:" $tenant1
     write-host "`n`nApplications:"
-    write-host "`n1- Paya" "& Paye" "`n2- Pays"
+    write-host "`n1- Paya" "& Paye (CPS Multiclientes)" "`n2- Pays (CPS Chile)"
 
     
     $listrec = Read-Host "`nPlease select the application that you want to work with (Ctrl/C to cancel)"
@@ -92,7 +92,7 @@ function dovmaction {
         $interact ++
         if ($interact -eq 10) {
             $interact = 0
-            write-host "Continuing looking for server, please wait..."
+            write-host "Continuing looking for server" $selvm1 "please wait..."
         }
         #$vmrec = Get-AzVM -ResourceGroupName $rec.ResourceGroupName -Name $selvm1 -ErrorAction:SilentlyContinue
         $vmrec = Get-AzVM -ResourceGroupName $rec.ResourceGroupName
