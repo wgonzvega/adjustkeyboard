@@ -87,7 +87,7 @@ if ($selvm1 -eq $selvm2){
     $equalname = "n"
     ;break
 }
-write-host "`nLooking for server at each Resource Group:"
+write-host "`nLooking for server:"
 
 #get the vm and the resource group and compare them
 #look for the vm at each RG
@@ -112,16 +112,16 @@ if($foundit -eq "1") {
     $actionrec = Read-Host "`nPlease enter the number of the action that you want to perform (1 = Stop(Deallocate), 2 = Start, Ctrl/C to cancel)"
     switch ($actionrec) {
         "1" {
-            write-host "`nStopping server", $selvm1 , "from Resource Group" $foundrg, "this could take several minutes to complete, please confirm..."
+            write-host "`nStopping server", $selvm1 , "from Resource Group" $foundrg, "this could take several minutes to complete, please confirm.`n"
             $result = Stop-AzVM -ResourceGroupName $foundrg -Name $selvm1
-            if ($result.Status -eq "Succeeded"){write-host "`nOperation Id:" $result.OperationId "`nStatus:" $result.Status
+            if ($result.Status -eq "Succeeded"){write-host "`nOperation Id:" $result.OperationId "`nStatus      :" $result.Status "`nStart time  :" $result.StartTime "`nEnd time    :" $result.EndTime
                 write-host "`nServer has accepted the stop(deallocate) command.`nPlease wait a few minutes for the Azure portal to update server status."}
             ; break
         }
         "2" {
-            write-host "`nStarting server", $selvm1 , "from Resource Group" $foundrg, "this could take several minutes to complete, please confirm..."
+            write-host "`nStarting server", $selvm1 , "from Resource Group" $foundrg, "this could take several minutes to complete, please confirm.`n"
             $result = Start-AzVM -ResourceGroupName $foundrg -Name $selvm1 -Confirm
-            if ($result.Status -eq "Succeeded"){write-host "`nOperation Id:" $result.OperationId "`nStatus:" $result.Status 
+            if ($result.Status -eq "Succeeded"){write-host "`nOperation Id:" $result.OperationId "`nStatus      :" $result.Status "`nStart time  :" $result.StartTime "`nEnd time    :" $result.EndTime
                 write-host "`nServer has accepted the start command.`nPlease wait a few minutes for the Azure portal to update server status."}
             ; break
         }
