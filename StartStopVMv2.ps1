@@ -11,14 +11,19 @@ $subname = ""#>
 $tenant1 = "3eca7dff-7c23-43b9-9551-7365b93d4f97"
 $sub1 = "6cfeca43-6518-489d-9a83-f0a9bb0cba5b"
 $subname = ""
-
+$selvm1 = ""
+$selvm2 = ""
+$seltenant = ""
+$foundit = ""
+$foundrg = ""
+$seltenant = ""
 
 function doaction {
     Clear-Host 
-    Clear-AzContext
-    Connect-AzAccount #-WarningAction:SilentlyContinue
-    $seltenant = Get-AzTenant -TenantId $tenant1  
-    write-host "Selected tenant:"$seltenant.name
+    #Clear-AzContext
+    #Connect-AzAccount #-WarningAction:SilentlyContinue
+    #$seltenant = Get-AzTenant -TenantId $tenant1  
+    #write-host "Selected tenant:"$seltenant.name
     
 
     #Set the subscription
@@ -26,22 +31,26 @@ function doaction {
     write-host "`n`nSubscriptions:"
     #write-host "`n1- Paya" "- Paye" "`n2- Pays"
     write-host "`n1- Pay as you go"
-    $listrec = Read-Host "`nPlease enter the environment that you want to work with (Ctrl/C to cancel)"
-    write-host "`nPlease wait, connecting to subscription..."
+    $listrec = Read-Host "`nPlease select the application that you want to work with (Ctrl/C to cancel)"
+    
     switch ($listrec) {
         "1" {
+            write-host "`nPlease wait, connecting to subscription..."
             $subname = Set-AzContext -Subscription $sub1 #-WarningAction:SilentlyContinue
             write-host "Subscription" $subname.Name ", connected"
-            break
+            dovmaction
         }
         "2" {
+            write-host "`nPlease wait, connecting to subscription..."
             $subname = Set-AzContext -Subscription $sub2 #-WarningAction:SilentlyContinue
             write-host "Subscription" $subname.Name ", connected"
-            break
+            dovmaction
         }
-        default { "`nSEntered value is out of range, error in action value"; break }
+        default { Read-Host "`nEntered value is out of range, error in action value`nPress any key to continue (Ctrl/C to cancel)";doaction }
     }
 
+}
+function dovmaction {
 
     #setvmname1
     $selvm1 = Read-Host "`nPlease enter the name of the Virtual Machine that you want to work with (Ctrl/C to cancel)"
@@ -65,24 +74,32 @@ function doaction {
         write-host "Server name number 1:" $selvm1
         write-host "Server name number 2:" $selvm2 "`n"
         $equalname = "n"
-        ; break
+        Read-Host "`nPress any key to continue (Ctrl/C to cancel)"
+        clear-host
+        dovmaction 
+
     }
-    write-host "`nLooking for server:"
+
+
+
 
     #get the vm and the resource group and compare them
     #look for the vm at each RG
 
     $allRG = Get-AzResourceGroup
-    $foundit = 0
+    $foundit = "0"
+    write-host "`nLooking for VM" $selvm1 "at each resource group, please wait..."
     foreach ($rec in $allRG) {
-        write-host "Looking for VM" $selvm1 "at each resource group, please wait..."
         $vmrec = Get-AzVM -ResourceGroupName $rec.ResourceGroupName -Name $selvm1 -ErrorAction:SilentlyContinue
         if ($vmrec.name -eq $selvm1) {
             $foundit = "1"
             $foundrg = $rec.ResourceGroupName
-
+            lookforvm
         } 
     }
+}
+
+function lookforvm{
     if ($foundit -eq "1") {
         write-host "Server" $selvm1 "found at" $foundrg
         write-host "`nYou have selected:"
@@ -96,7 +113,7 @@ function doaction {
                 $result = Stop-AzVM -ResourceGroupName $foundrg -Name $selvm1
                 if ($result.Status -eq "Succeeded") {
                     write-host "`nOperation Id:" $result.OperationId "`nStatus      :" $result.Status "`nStart time  :" $result.StartTime "`nEnd time    :" $result.EndTime
-                    write-host "`nServer has accepted the stop(deallocate) command.`nPlease wait a few minutes for the Azure portal to update server status."
+                    write-host "`nServer has accepted the stop(deallocate) command.`nPlease wait a few minutes for the Azure portal to update server status.`n"
                 }
                 ; break
             }
@@ -109,15 +126,16 @@ function doaction {
                 }
                 ; break
             }
-            default { "`nSEntered value is out of range, error in action value"; break }
+            default { Read-Host "`nEntered value is out of range, error in value.  Press any key to continue (Ctrl/C to cancel)" 
+            clear-host
+            ;lookforvm }
         }
     }
     else {
-        write-host "Server not found"
+        Read-Host "Server not found.  Press any key to continue (Ctrl/C to cancel)";doaction
     }
 }
 
 #function calls
  doaction
 
- 
