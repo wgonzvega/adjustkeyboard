@@ -36,7 +36,7 @@ $subname = ""#>
 $tenant1 = "3eca7dff-7c23-43b9-9551-7365b93d4f97"
 $sub1 = "6cfeca43-6518-489d-9a83-f0a9bb0cba5b"
 $subname = ""
-
+Clear-AzContext
 Clear-Host 
     Connect-AzAccount #-WarningAction:SilentlyContinue
     $seltenant = Get-AzTenant -TenantId $tenant1  
