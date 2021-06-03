@@ -108,7 +108,7 @@ function stopstartvm{
         write-host "`n`nServer" $selvm1 "found at" $foundrg "Resource Group."
         $vm1 = Get-AzVM -ResourceGroupName $foundrg -Name $selvm1 -Status
         $status = $vm1.statuses  
-        write-host "`nVM actual Status:" $status.displaystatus
+        write-host "`nVM actual Status is:" $status.displaystatus
         write-host "`nYou have selected..."
         write-host "Virtual machine   : " $selvm1
         write-host "From subscription : " $subname.Name
