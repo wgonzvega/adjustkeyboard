@@ -20,17 +20,19 @@ $seltenant = ""
 
 function doaction {
     Clear-Host 
-    #Clear-AzContext
-    #Connect-AzAccount #-WarningAction:SilentlyContinue
-    #$seltenant = Get-AzTenant -TenantId $tenant1  
-    #write-host "Selected tenant:"$seltenant.name
+    Clear-AzContext
+    Connect-AzAccount #-WarningAction:SilentlyContinue
+    $seltenant = Get-AzTenant -TenantId $tenant1  
+    write-host "Selected tenant:"$seltenant.name
     
 
     #Set the subscription
     write-host "Tenant Id:" $tenant1
-    write-host "`n`nSubscriptions:"
-    #write-host "`n1- Paya" "- Paye" "`n2- Pays"
+    write-host "`n`nApplications:"
+    
+    #write-host "`n1- Paya" "& Paye" "`n2- Pays"
     write-host "`n1- Pay as you go"
+    
     $listrec = Read-Host "`nPlease select the application that you want to work with (Ctrl/C to cancel)"
     
     switch ($listrec) {
@@ -70,7 +72,7 @@ function dovmaction {
         $equalname = "y"
     }
     else {
-        write-host "`n`nThe name for the server and the confirmation name must match.  Input values not equals."
+        write-host "`n`nThe name for the server and the name on the confirmation must match.  Input values not equals."
         write-host "Server name number 1:" $selvm1
         write-host "Server name number 2:" $selvm2 "`n"
         $equalname = "n"
@@ -85,24 +87,29 @@ function dovmaction {
 
     #get the vm and the resource group and compare them
     #look for the vm at each RG
-
+    write-host "`nServer name and confirmation values matched."
     $allRG = Get-AzResourceGroup
     $foundit = "0"
     write-host "`nLooking for VM" $selvm1 "at each resource group, please wait..."
+    
     foreach ($rec in $allRG) {
         $vmrec = Get-AzVM -ResourceGroupName $rec.ResourceGroupName -Name $selvm1 -ErrorAction:SilentlyContinue
         if ($vmrec.name -eq $selvm1) {
             $foundit = "1"
-            $foundrg = $rec.ResourceGroupName
-            lookforvm
+            $foundrg = $rec.ResourceGroupName  
+            stopstartvm
         } 
     }
+
 }
 
-function lookforvm{
+function stopstartvm{
     if ($foundit -eq "1") {
-        write-host "Server" $selvm1 "found at" $foundrg
-        write-host "`nYou have selected:"
+        write-host "`n`nServer" $selvm1 "found at" $foundrg "Resource Group."
+        $vm1 = Get-AzVM -ResourceGroupName $foundrg -Name $selvm1 -Status
+        $status = $vm1.statuses  
+        write-host "`nVM actual Status:" $status.displaystatus
+        write-host "`nYou have selected..."
         write-host "Virtual machine   : " $selvm1
         write-host "From subscription : " $subname.Name
         write-host "In the tenant     : " $seltenant.Name
@@ -113,7 +120,7 @@ function lookforvm{
                 $result = Stop-AzVM -ResourceGroupName $foundrg -Name $selvm1
                 if ($result.Status -eq "Succeeded") {
                     write-host "`nOperation Id:" $result.OperationId "`nStatus      :" $result.Status "`nStart time  :" $result.StartTime "`nEnd time    :" $result.EndTime
-                    write-host "`nServer has accepted the stop(deallocate) command.`nPlease wait a few minutes for the Azure portal to update server status.`n"
+                    write-host "`nServer has accepted the stop(deallocate) command.`nPlease wait a few minutes for the server to update his status.`n"
                 }
                 ; break
             }
@@ -122,13 +129,13 @@ function lookforvm{
                 $result = Start-AzVM -ResourceGroupName $foundrg -Name $selvm1 -Confirm
                 if ($result.Status -eq "Succeeded") {
                     write-host "`nOperation Id:" $result.OperationId "`nStatus      :" $result.Status "`nStart time  :" $result.StartTime "`nEnd time    :" $result.EndTime
-                    write-host "`nServer has accepted the start command.`nPlease wait a few minutes for the Azure portal to update server status."
+                    write-host "`nServer has accepted the start command.`nPlease wait a few minutes for the server to update his status."
                 }
                 ; break
             }
             default { Read-Host "`nEntered value is out of range, error in value.  Press any key to continue (Ctrl/C to cancel)" 
             clear-host
-            ;lookforvm }
+            ;stopstartvm }
         }
     }
     else {
