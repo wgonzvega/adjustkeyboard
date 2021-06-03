@@ -26,7 +26,7 @@ Cambios propuestos en 6/2/2021
 #>
 
 #Global variables
-#Everteclls
+#Evertecllc
 <#$tenant1 = "2b5b7d77-f19b-4c6d-b180-5768c09ad43b"
 $sub1 = "3e527659-51a8-4f6e-9214-c5a728456508"
 $sub2 = "ea2697d1-9ec5-46ed-8bc6-c81bea17abd1"
@@ -38,10 +38,10 @@ $sub1 = "6cfeca43-6518-489d-9a83-f0a9bb0cba5b"
 $subname = ""
 
 Clear-Host 
-    <#Connect-AzAccount #-WarningAction:SilentlyContinue
+    Connect-AzAccount #-WarningAction:SilentlyContinue
     $seltenant = Get-AzTenant -TenantId $tenant1  
     write-host "Selected tenant:"$seltenant.name
-    #>
+    
 
 #Set the subscription
 write-host "Tenant Id:" $tenant1
