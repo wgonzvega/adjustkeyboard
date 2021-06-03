@@ -5,10 +5,9 @@ Cambios propuestos en 6/2/2021
     a-Pays
     b-Paye
     c-Paya
-    d- Pueden haber otros
     Con esta informacion utilizar una suscripcion en particular:
         a- Chile Santander
-        b- Multiclientes
+        b- Multiclientes (508)
 2- Preguntar por ambiente (convertir en minusculas)
     a- Dev
     b- Cert,Crt
@@ -25,142 +24,120 @@ Cambios propuestos en 6/2/2021
 10- Tomar la accion
 
 #>
-function gettenant {
-    Clear-Host 
-   
-    #Clear-AzContext
-    Connect-AzAccount #-WarningAction:SilentlyContinue
-    $tenant = Get-AzTenant #-WarningAction:SilentlyContinue
-    $t = 0
-    write-host "`n##" "`tTenant Name" "`t`t`t`t`tId"
 
-    foreach ($recs in $tenant) {
-        $spaces = $recs.Name.Length
-        if ($spaces -gt 40) {
-            $nametodisplay = $recs.name.substring(0, 40) 
-        }
-        else {
-            $spaces = 40 - $spaces
-            $nametodisplay = $recs.name + $divider.substring(0, $spaces) 
-        }
-        write-host $t $nametodisplay $recs.Id -Separator "`t"
-        $t ++
-    }
-    $t --
-    $selsubs = Read-Host "`nPlease enter the number of the Tenant that you want to work with (Ctrl/C to cancel)"
-    if ([int]$selsubs -le $t -and [int]$selsubs -ge 0) {
-        $seltenant = $tenant[$selsubs].Id
-        write-host "Tenant selected:", $tenant[$selsubs].Name, $seltenant
-    }
-    else {
-        write-host "Entered value is out of range"
+#Global variables
+#Everteclls
+<#$tenant1 = "2b5b7d77-f19b-4c6d-b180-5768c09ad43b"
+$sub1 = "3e527659-51a8-4f6e-9214-c5a728456508"
+$sub2 = "ea2697d1-9ec5-46ed-8bc6-c81bea17abd1"
+$subname = ""#>
+
+#Private acc
+$tenant1 = "3eca7dff-7c23-43b9-9551-7365b93d4f97"
+$sub1 = "6cfeca43-6518-489d-9a83-f0a9bb0cba5b"
+$subname = ""
+
+Clear-Host 
+    <#Connect-AzAccount #-WarningAction:SilentlyContinue
+    $seltenant = Get-AzTenant -TenantId $tenant1  
+    write-host "Selected tenant:"$seltenant.name
+    #>
+
+#Set the subscription
+write-host "Tenant Id:" $tenant1
+write-host "`n`nSubscriptions:"
+#write-host "`n1- Paya" "- Paye" "`n2- Pays"
+write-host "`n1- Pay as you go"
+$listrec = Read-Host "`nPlease enter the environment that you want to work with (Ctrl/C to cancel)"
+write-host "`nPlease wait, connecting to subscription..."
+switch ($listrec){
+    "1" {
+        $subname = Set-AzContext -Subscription $sub1 #-WarningAction:SilentlyContinue
+        write-host "Subscription" $subname.Name ", connected"
         break
     }
-    
-    return $seltenant
-}
-
-
-
-function setsub {
-    param (
-        [string]$tenant
-    )
-    #Get all subs in a Tenant
-    $length = $tenant.length
-    $tenantid = $tenant.Substring($length-36,36)
-    write-host "Tenant Id:" $tenantid
-    $Selsubscription = @(Get-AzSubscription -TenantId $tenantid -WarningAction:SilentlyContinue) 
-    $t = 0
-    $divider = "                                                               "
-    write-host "`n##" "`tSubscription Name" "`t`t`t`tSubscription Id"
-    foreach ($recs in $Selsubscription) {
-        $spaces = $recs.Name.Length
-        if ($spaces -gt 40) {
-            $nametodisplay = $recs.name.substring(0, 40) 
-        }
-        else {
-            $spaces = 40 - $spaces
-            $nametodisplay = $recs.name + $divider.substring(0, $spaces) 
-        }
-        write-host $t $nametodisplay $recs.id -Separator "`t"
-        $t ++
-    }
-    $selsubs = Read-Host "`nPlease enter the number of the subscription that you want to work with (Ctrl/C to cancel)"
-    $t --
-    if ([int]$selsubs -le $t -and [int]$selsubs -gt -1) {
-        write-host "Subscription selected:", $Selsubscription[$selsubs].Name
-        $subsid = $Selsubscription[$selsubs].Id
-        write-host "Setting Subscription..."
-        Set-AzContext -Subscription $subsid
-    }
-    else {
-        write-host "Entered value is out of range"
+    "2" {
+        $subname = Set-AzContext -Subscription $sub2 #-WarningAction:SilentlyContinue
+        write-host "Subscription" $subname.Name ", connected"
         break
     }
-    $selsubsc = $Selsubscription[$selsubs].Name
-    return $selsubsc
+    default { "`nSEntered value is out of range, error in action value"; break }
 }
 
-function getvms {
-    param (
-        [string] $tenant,
-        [string] $subs
-    )
-    write-host "Getting VM list..."
-    $vms = @(Get-AzVM -WarningAction:SilentlyContinue)
-    $t = 0
-
-    write-host "`n##" "`tServer Name" "`t`t`t`t`tResourceGroup"
-    foreach ($recs in $vms) {
-        $spaces = $recs.Name.Length
-        if ($spaces -gt 40) {
-            $nametodisplay = $recs.name.substring(0, 40) 
-        }
-        else {
-            $spaces = 40 - $spaces
-            $nametodisplay = $recs.name + $divider.substring(0, $spaces) 
-        }
-
-        write-host $t $nametodisplay $recs.ResourceGroupName  -Separator "`t"
-        $t ++
-    }
-    $listrec = Read-Host "`nPlease enter the number of the vm that you want to work with (Ctrl/C to cancel)"
-    $t --
-    if ([int]$listrec -le $t -and [int]$listrec -gt -1) {
-        write-host "Working..."
-        $tenantname = Get-AzTenant -TenantId $tenant
-        write-host "`nYou have selected..."
-        write-host "Virtual machine   : " $vms[$listrec].Name 
-        write-host "From subscription : " $subs
-        write-host "In the tenant     : " $tenantname.Name    }
-    else {
-        write-host "Entered value is out of range"
+<#
+#set the environment
+write-host "`n1- Dev" "`n2- Crt" "`n3- Uat" "`n4- Prd"
+$listrec = Read-Host "`nPlease enter the environment that you want to work with (Ctrl/C to cancel)"
+switch ($listrec){
+    "1" {
+        write-host "Dev"
         break
     }
-
-
-    $actionrec = Read-Host "`nPlease enter the number of the action that you want to perform (1 = Stop (Deallocate), 2= Start, Ctrl/C to cancel)"
-
-    switch ($actionrec) {
-        "1" {
-            write-host "`nStopping server", $vms[$listrec].Name , "from Resource Group" $vms[$listrec].ResourceGroupName, "please confirm..."
-            Stop-AzVM -ResourceGroupName $vms[$listrec].ResourceGroupName -Name $vms[$listrec].Name 
-            ; break
-        }
-        "2" {
-            write-host "`nStarting server", $vms[$listrec].Name , "from Resource Group" $vms[$listrec].ResourceGroupName, "please confirm..."
-            Start-AzVM -ResourceGroupName $vms[$listrec].ResourceGroupName -Name $vms[$listrec].Name -Confirm
-            ; break
-        }
-        default { "`nSEntered value is out of range, error in action value"; break }
+    "2" {
+        write-host "Crt"
+        break
     }
-
+    "3" {
+        write-host "Uat"
+        break
+    }
+    "4" {
+        write-host "Prd"
+        break
+    }
+    default { "`nSEntered value is out of range, error in action value"; break }
 }
- 
-#Start functions calls
-$divider = "                                                                           "
-$tenantback = gettenant 
-$subsback = setsub -tenant $tenantback
-getvms -tenant $tenantback -subs $subsback
-#End
+#>
+
+#setvmname1
+$selvm1 = Read-Host "`nPlease enter the Virtual Machine name that you want to work with (Ctrl/C to cancel)"
+
+#setvmname2
+clear-host
+write-host "Please confirm your selection by re-entering the server name."
+$selvm2 = Read-Host "`nPlease enter the Virtual Machine name that you want to work with (Ctrl/C to cancel)"
+
+
+#check if they are equals
+$selvm1 = $selvm1.ToLower()
+#$selrg1 = $selrg1.ToLower()
+
+$selvm2 = $selvm2.ToLower()
+#$selrg2 = $selrg2.ToLower()
+
+
+if ($selvm1 -eq $selvm2){
+    $equalname = "y"
+}else {
+    $equalname = "n"
+}
+
+if ($equalname = "y"){
+    write-host "Equals"
+}else {
+    write-host "Not equal"
+}
+write-host "Answer #1" $selvm1
+write-host "Answer #2" $selvm2
+
+#get the vm and the real resource group, compare them
+<#
+ look for the vm at each RG
+#>
+$allRG = Get-AzResourceGroup
+$foundit = 0
+foreach ($rec in $allRG){
+    write-host "Checking for VM" $selvm1 "at" $rec.ResourceGroupName
+    $vmrec = Get-AzVM -ResourceGroupName $rec.ResourceGroupName -Name $selvm1 -ErrorAction:SilentlyContinue
+    if($vmrec.name -eq $selvm1){
+        $foundit = "1"
+        $foundrg = $rec.ResourceGroupName
+
+    } 
+}
+if($foundit -eq "1") {
+    write-host "Server" $selvm1 "found at" $foundrg
+}else {
+    write-host "Server not found"
+}
+
