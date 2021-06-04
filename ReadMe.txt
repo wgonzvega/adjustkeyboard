@@ -28,14 +28,15 @@ Falta solo el crear la cuenta en Cloudcheckr una vez aparezca en el portal
 
 15- Avisar a Seguridad de la suscripcion
 16- Mover la suscripcion del Management Group Tenant Root al Management Group nuevo creado bajo el Evertec LLC Management Group(ver paso 5 y 6 (solo si es necesario))
-16- Crear Management Group bajo EvertecLLC y mover la suscripcion al Management Group nuevo
+16- Crear Management Group bajo EvertecLLC y mover la suscripcion al Management Group nuevo(ver paso 5 y 6 (solo si es necesario))
 17- Eliminar tu usuario como Owner tanto de nuestro grupo de arquitectura como de usuarios de Seguridad, el permiso del grupo de Arquitectura es heredado desde el Management Group EvertecLLC
 19- Correr los blueprints CommonPolicies, CommonResourceGroups, CreateEventHubName, CreateLogAnalyticsWorkspace, CreateStorageAccountforEventHub
 20- Crear los Custom Roles ASG Team Monitoring [account name], ASGNetworkWatcher [account name], Network Watcher Managements [account name], Stop Restart Start VM [account name]
-    Virtual Machine Update Manager [account name]
+    Virtual Machine Update Manager [account name] (en plot crt se unificaron en un solo role Stop Restart Start VM+Virtual Machine Update Manager)
 21- Asignar los permisos a los grupos de cada custom role
 
-
+Rg-pvot-loganalytics-crt-01
+Stop and Update Manager VM [subscription] crt
 
 
 athmawsdev	846535660599	Dev	rebecca.maldonado@evertecinc.com	250 - Current cost for the budget (less upfront RI costs): $606.22 - se escribio al dueno para revisar budget
