@@ -1,3 +1,11 @@
+<#modules needed (install them at the cmd prompt level: import-module -name [module name])
+az.accounts
+az.compute
+az.resources
+#>
+
+
+#            NO DEBE PERMITIR HACER BUSQUEDAS DE PROD
 
 
 
