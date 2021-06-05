@@ -36,7 +36,8 @@ $seltenant = ""
 $foundit = ""
 $foundrg = ""
 $seltenant = ""
-$x = 1
+$vmnum = 0
+$allRG = ""
 
 function doaction {
     Clear-Host 
@@ -105,24 +106,26 @@ function dovmaction {
     #get the vm and the resource group and compare them
     #look for the vm at each RG
     write-host "`nServer name and confirmation values matched."
-    $allRG = Get-AzResourceGroup
+    lookforvm
+}
+function lookforvm {
+    $allRG = @(Get-AzResourceGroup)
     $foundit = "0"
     write-host "`nLooking for VM" $selvm1 "at each resource group, please wait..."
-    
+    $x = 1
     $interact = 0
     foreach ($rec in $allRG) {
         $interact ++
-        if ($interact -eq 10) {
+        if ($interact -eq 100) {
             $interact = 0
-            write-host "Continuing looking for server" $selvm1 "please wait..."
+            write-host "Continuing looking for server" $selvm1 "please wait...`n"
         }
-        $vmrec = Get-AzVM -ResourceGroupName $rec.ResourceGroupName
-        $x = 1
+        $vmrec = @(Get-AzVM -ResourceGroupName $rec.ResourceGroupName)
+        
         foreach ($vmlist in $vmrec) {
             if ($vmlist.name -eq $selvm1) {
                 $foundit = "1"
                 $foundrg = $rec.ResourceGroupName  
-                write-host "`n"
                 write-host $x "- Server" $selvm1 "found at" $foundrg "Resource Group."
                 $x ++
             } 
@@ -132,64 +135,59 @@ function dovmaction {
 }
 
 function stopstartvm {
+    $allRG = @(Get-AzResourceGroup)
     if ($foundit -eq "1") {
-        if ($selvm1 -match "prd" -or $foundrg -match "prd" -or $selvm1 -match "prod" -or $foundrg -match "prod" ) {
-            if ($foundrg -notmatch "preprod") {
-                if ($foundrg -notmatch "pre-prod") {
-                    write-host "`n`n`nServer" $selvm1 "seems to belong to a production environment.  Procees is not allowed to modify production resources. Process halt.`n`n`n" -ForegroundColor White -BackgroundColor Black
-                    exit
+            #CREAR RUTINA DE PREGUNTAR CON CUAL SERVER VA A TRABAJAR
+            $vmnum = read-host "Please select from the list the server that you need to work with, (Crtl/C to cancel)"
+            write-host "Selection" $selvm1 "from Resource Group" $allRG[[int]$vmnum].ResourceGroupName
+            $foundrg = $allRG[[int]$vmnum].ResourceGroupName
+            if ($selvm1 -match "prd" -or $foundrg -match "prd" -or $selvm1 -match "prod" -or $foundrg -match "prod" ) {
+                if ($foundrg -notmatch "preprod") {
+                    if ($foundrg -notmatch "pre-prod") {
+                        write-host "`n`n`nServer" $selvm1 "seems to belong to a production environment.  Procees is not allowed to modify production resources. Process halt.`n`n`n" -ForegroundColor White -BackgroundColor Black
+                        exit
+                    }
                 }
             }
-            #CREAR RUTINA DE PREGUNTAR POR CUAL SERVER VA A TRABAJAR
-            $vmnumber = read-host "From the list, please enter the number of the server that you want to work with (Ctrl/C to cancel)"
-            $x --
-            #validar $vmnumber
-            if ([init]$vmnumber -ge 1 -and [init]$vmnumber -le $x) {
-                write-host "Getting server actual state. Please wait..."
-                $vm1 = Get-AzVM -ResourceGroupName $foundrg -Name $selvm1 -Status
-                $status = $vm1.statuses  
-                write-host "`nVM actual Status is:" $status.displaystatus -ForegroundColor White -BackgroundColor Black
-                write-host "`nYou have selected..."
-                write-host "Virtual machine   : " $selvm1
-                write-host "From subscription : " $subname.Name
-                write-host "In the tenant     : " $seltenant.Name
+            write-host "Getting server actual state. Please wait..."
+            $vm1 = Get-AzVM -ResourceGroupName $foundrg -Name $selvm1 -Status
+            $status = $vm1.statuses  
+            write-host "`nVM actual Status is:" $status.displaystatus -ForegroundColor White -BackgroundColor Black
+            write-host "`nYou have selected..."
+            write-host "Virtual machine   : " $selvm1
+            write-host "From subscription : " $subname.Name
+            write-host "In the tenant     : " $seltenant.Name
 
-                $actionrec = Read-Host "`nPlease enter the number of the action that you want to perform (1 = Stop(Deallocate), 2 = Start, Ctrl/C to cancel)"
-                switch ($actionrec) {
-                    "1" {
-                        write-host "`nStopping server", $selvm1 , "from Resource Group" $foundrg, "this could take several minutes to complete, please confirm.`n" -ForegroundColor White -BackgroundColor Black
-                        $result = Stop-AzVM -ResourceGroupName $foundrg -Name $selvm1
-                        if ($result.Status -eq "Succeeded") {
-                            write-host "`nOperation Id:" $result.OperationId "`nStatus      :" $result.Status "`nStart time  :" $result.StartTime "`nEnd time    :" $result.EndTime
-                            write-host "`nServer has accepted the stop(deallocate) command.`nPlease wait a few minutes for the server to update his status.`n"
-                        }
-                        ; break
+            $actionrec = Read-Host "`nPlease enter the number of the action that you want to perform (1 = Stop(Deallocate), 2 = Start, Ctrl/C to cancel)"
+            switch ($actionrec) {
+                "1" {
+                    write-host "`nStopping server", $selvm1 , "from Resource Group" $foundrg, "this could take several minutes to complete, please confirm.`n" -ForegroundColor White -BackgroundColor Black
+                    $result = Stop-AzVM -ResourceGroupName $foundrg] -Name $selvm1
+                    if ($result.Status -eq "Succeeded") {
+                        write-host "`nOperation Id:" $result.OperationId "`nStatus      :" $result.Status "`nStart time  :" $result.StartTime "`nEnd time    :" $result.EndTime
+                        write-host "`nServer has accepted the stop(deallocate) command.`nPlease wait a few minutes for the server to update his status.`n"
                     }
-                    "2" {
-                        write-host "`nStarting server", $selvm1 , "from Resource Group" $foundrg, "this could take several minutes to complete, please confirm.`n" -ForegroundColor White -BackgroundColor Black
-                        $result = Start-AzVM -ResourceGroupName $foundrg -Name $selvm1 -Confirm
-                        if ($result.Status -eq "Succeeded") {
-                            write-host "`nOperation Id:" $result.OperationId "`nStatus      :" $result.Status "`nStart time  :" $result.StartTime "`nEnd time    :" $result.EndTime
-                            write-host "`nServer has accepted the start command.`nPlease wait a few minutes for the server to update his status."
-                        }
-                        ; break
-                    }
-                    default {
-                        Read-Host "`nEntered value is out of range, error in value.  Press any key to continue (Ctrl/C to cancel)" 
-                        clear-host
-                        ; stopstartvm 
-                    }
+                    ; break
                 }
-            }
-            else {
-                #error in entered value
-                Read-Host "`nEntered value is out of range, error in value.  Press any key to continue (Ctrl/C to cancel)" 
-                stopstartvm
+                "2" {
+                    write-host "`nStarting server", $selvm1 , "from Resource Group" $foundrg, "this could take several minutes to complete, please confirm.`n" -ForegroundColor White -BackgroundColor Black
+                    $result = Start-AzVM -ResourceGroupName $foundrg -Name $selvm1 -Confirm
+                    if ($result.Status -eq "Succeeded") {
+                        write-host "`nOperation Id:" $result.OperationId "`nStatus      :" $result.Status "`nStart time  :" $result.StartTime "`nEnd time    :" $result.EndTime
+                        write-host "`nServer has accepted the start command.`nPlease wait a few minutes for the server to update his status."
+                    }
+                    ; break
+                }
+                default {
+                    Read-Host "`nEntered value is out of range, error in value.  Press any key to continue (Ctrl/C to cancel)" 
+                    clear-host
+                    ; stopstartvm 
+                }
             }
             else {
                 Read-Host "Server not found.  Press any key to continue (Ctrl/C to cancel)"; doaction
             }
-        }
+        
     }
 }
 #function calls
