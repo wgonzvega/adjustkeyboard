@@ -38,6 +38,8 @@ $foundrg = ""
 $seltenant = ""
 $vmnum = 0
 $allRG = ""
+$vmarray = New-Object System.Collections.ArrayList
+$rgarray = New-Object System.Collections.ArrayList
 
 function doaction {
     Clear-Host 
@@ -78,7 +80,7 @@ function doaction {
 }
 function dovmaction {
 
-    #setvmname1
+    Clear-Host
     $selvm1 = Read-Host "`nPlease enter the name of the Virtual Machine that you want to work with (Ctrl/C to cancel)"
 
     #setvmname2
@@ -112,7 +114,7 @@ function lookforvm {
     $allRG = @(Get-AzResourceGroup)
     $foundit = "0"
     write-host "`nLooking for VM" $selvm1 "at each resource group, please wait..."
-    $x = 1
+    $x = 0
     $interact = 0
     foreach ($rec in $allRG) {
         $interact ++
@@ -127,6 +129,8 @@ function lookforvm {
                 $foundit = "1"
                 $foundrg = $rec.ResourceGroupName  
                 write-host $x "- Server" $selvm1 "found at" $foundrg "Resource Group."
+                $vmarray.Add($selvm1) > $null
+                $rgarray.Add($foundrg) > $null
                 $x ++
             } 
         }
@@ -135,61 +139,65 @@ function lookforvm {
 }
 
 function stopstartvm {
-    $allRG = @(Get-AzResourceGroup)
     if ($foundit -eq "1") {
-            #CREAR RUTINA DE PREGUNTAR CON CUAL SERVER VA A TRABAJAR
-            $vmnum = read-host "Please select from the list the server that you need to work with, (Crtl/C to cancel)"
-            write-host "Selection" $selvm1 "from Resource Group" $allRG[[int]$vmnum].ResourceGroupName
-            $foundrg = $allRG[[int]$vmnum].ResourceGroupName
-            if ($selvm1 -match "prd" -or $foundrg -match "prd" -or $selvm1 -match "prod" -or $foundrg -match "prod" ) {
-                if ($foundrg -notmatch "preprod") {
-                    if ($foundrg -notmatch "pre-prod") {
-                        write-host "`n`n`nServer" $selvm1 "seems to belong to a production environment.  Procees is not allowed to modify production resources. Process halt.`n`n`n" -ForegroundColor White -BackgroundColor Black
-                        exit
-                    }
+        #CREAR RUTINA DE PREGUNTAR CON CUAL SERVER VA A TRABAJAR
+        $vmnum = read-host "Please select from the list the server that you need to work with, (Crtl/C to cancel)"
+        $trec = [int]$vmnum
+        write-host "Selection" $vmarray[$trec] "from Resource Group" $rgarray[$trec]
+        $foundrg = $rgarray[$trec]
+        if ($selvm1 -match "prd" -or $foundrg -match "prd" -or $selvm1 -match "prod" -or $foundrg -match "prod" ) {
+            if ($foundrg -notmatch "preprod") {
+                if ($foundrg -notmatch "pre-prod") {
+                    write-host "`n`n`nServer" $selvm1 "seems to belong to a production environment.  Procees is not allowed to modify production resources. Process halt.`n`n`n" -ForegroundColor White -BackgroundColor Black
+                    exit
                 }
             }
-            write-host "Getting server actual state. Please wait..."
-            $vm1 = Get-AzVM -ResourceGroupName $foundrg -Name $selvm1 -Status
-            $status = $vm1.statuses  
-            write-host "`nVM actual Status is:" $status.displaystatus -ForegroundColor White -BackgroundColor Black
-            write-host "`nYou have selected..."
-            write-host "Virtual machine   : " $selvm1
-            write-host "From subscription : " $subname.Name
-            write-host "In the tenant     : " $seltenant.Name
+        }
+        write-host "Getting server actual state. Please wait..."
+        $vm1 = Get-AzVM -ResourceGroupName $foundrg -Name $selvm1 -Status
+        $status = $vm1.statuses  
+        write-host "`nVM actual Status is:" $status.displaystatus -ForegroundColor White -BackgroundColor Black
+        write-host "`nYou have selected..."
+        write-host "Virtual machine   : " $selvm1
+        write-host "At Resource Group : " $foundrg
+        write-host "From Subscription : " $subname.Name
+        write-host "In Tenant         : " $seltenant.Name
 
-            $actionrec = Read-Host "`nPlease enter the number of the action that you want to perform (1 = Stop(Deallocate), 2 = Start, Ctrl/C to cancel)"
-            switch ($actionrec) {
-                "1" {
-                    write-host "`nStopping server", $selvm1 , "from Resource Group" $foundrg, "this could take several minutes to complete, please confirm.`n" -ForegroundColor White -BackgroundColor Black
-                    $result = Stop-AzVM -ResourceGroupName $foundrg] -Name $selvm1
-                    if ($result.Status -eq "Succeeded") {
-                        write-host "`nOperation Id:" $result.OperationId "`nStatus      :" $result.Status "`nStart time  :" $result.StartTime "`nEnd time    :" $result.EndTime
-                        write-host "`nServer has accepted the stop(deallocate) command.`nPlease wait a few minutes for the server to update his status.`n"
-                    }
-                    ; break
+        $actionrec = Read-Host "`nPlease enter the number of the action that you want to perform (1 = Stop(Deallocate), 2 = Start, Ctrl/C to cancel)"
+        switch ($actionrec) {
+            "1" {
+                write-host "`nStopping server", $selvm1 , "from Resource Group" $foundrg, "this could take several minutes to complete, please confirm.`n" -ForegroundColor White -BackgroundColor Black
+                $result = Stop-AzVM -ResourceGroupName $foundrg -Name $selvm1
+                if ($result.Status -eq "Succeeded") {
+                    write-host "`nOperation Id:" $result.OperationId "`nStatus      :" $result.Status "`nStart time  :" $result.StartTime "`nEnd time    :" $result.EndTime
+                    write-host "`nServer has accepted the stop(deallocate) command.`nPlease wait a few minutes for the server to update his status.`n" -ForegroundColor White -BackgroundColor Black
                 }
-                "2" {
-                    write-host "`nStarting server", $selvm1 , "from Resource Group" $foundrg, "this could take several minutes to complete, please confirm.`n" -ForegroundColor White -BackgroundColor Black
-                    $result = Start-AzVM -ResourceGroupName $foundrg -Name $selvm1 -Confirm
-                    if ($result.Status -eq "Succeeded") {
-                        write-host "`nOperation Id:" $result.OperationId "`nStatus      :" $result.Status "`nStart time  :" $result.StartTime "`nEnd time    :" $result.EndTime
-                        write-host "`nServer has accepted the start command.`nPlease wait a few minutes for the server to update his status."
-                    }
-                    ; break
-                }
-                default {
-                    Read-Host "`nEntered value is out of range, error in value.  Press any key to continue (Ctrl/C to cancel)" 
-                    clear-host
-                    ; stopstartvm 
-                }
+                ; break
             }
-            else {
-                Read-Host "Server not found.  Press any key to continue (Ctrl/C to cancel)"; doaction
+            "2" {
+                write-host "`nStarting server", $selvm1 , "from Resource Group" $foundrg, "this could take several minutes to complete, please confirm.`n" -ForegroundColor White -BackgroundColor Black
+                $result = Start-AzVM -ResourceGroupName $foundrg -Name $selvm1 -Confirm
+                if ($result.Status -eq "Succeeded") {
+                    write-host "`nOperation Id:" $result.OperationId "`nStatus      :" $result.Status "`nStart time  :" $result.StartTime "`nEnd time    :" $result.EndTime
+                    write-host "`nServer has accepted the start command.`nPlease wait a few minutes for the server to update his status." -ForegroundColor White -BackgroundColor Black
+                }
+                ; break
             }
-        
+            default {
+                Read-Host "`nEntered value is out of range, error in value.  Press any key to continue (Ctrl/C to cancel)" 
+                clear-host
+                ; stopstartvm 
+            }
+        }
     }
+    else {
+        Read-Host "Server not found.  Press any key to continue (Ctrl/C to cancel)"; doaction
+    }
+        
 }
+
+
 #function calls
+
 doaction
 
