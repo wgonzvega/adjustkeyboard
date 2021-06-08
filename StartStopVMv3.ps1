@@ -1,4 +1,4 @@
-<#modules needed (install them at the cmd prompt level: import-module -name [module name])
+<#modules needed (install them at the cmd prompt level: install-module -name [module name])
 az.accounts
 az.compute
 az.resources
