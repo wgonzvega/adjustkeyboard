@@ -117,6 +117,10 @@ function dovmaction {
 function lookforvm {
     clear-host
     $allRG = @(Get-AzResourceGroup)
+    foreach($rec in $allRG){
+        write-host $rec.ResourceGroupName
+    }
+    Pause
     $foundit = "0"
     write-host "`nLooking for VM" $selvm1 "on each resource group, please wait..."
     $x = 0
@@ -141,7 +145,7 @@ function lookforvm {
 function stopstartvm {
     if ($foundit -eq "1") {
         $vmnum = read-host "`nPlease select from the list the server that you need to work with, (Crtl/C to cancel, default is 0)"
-        if($vmnum -eq ""){
+        if ($vmnum -eq "") {
             $vmnum = "0"
         }
         if ($vmnum -ge "0" -and $vmnum -le $x) {
@@ -163,6 +167,11 @@ function stopstartvm {
             lookforvm
         }
         lastaction
+    }
+    else {
+        write-host "Server" $selvm1 "not found"
+        pause
+        dovmaction
     }
 }
 function lastaction {
