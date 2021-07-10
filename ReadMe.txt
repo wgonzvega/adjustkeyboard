@@ -1,9 +1,9 @@
 #####################################################
-#						    #
-#	   Enterprise Architecture                  #
-#		Walter Gonzalez			    #
-#   Pasos para suscripciones nuevas Evertec LLC	    #
-#						    #
+#						 #
+#	   Enterprise Architecture                 #
+#		Walter Gonzalez			 #
+#   Pasos para suscripciones nuevas Evertec LLC	 #
+#						 #
 #####################################################
 
 
@@ -37,13 +37,6 @@ Falta solo el crear la cuenta en Cloudcheckr una vez aparezca en el portal
 
 Rg-pvot-loganalytics-crt-01
 Stop and Update Manager VM [subscription] crt
-
-
-athmawsdev	846535660599	Dev	rebecca.maldonado@evertecinc.com	250 - Current cost for the budget (less upfront RI costs): $606.22 - se escribio al dueno para revisar budget
-athmaws	254931205411	Prod	rebecca.maldonado@evertecinc.com	45000 - Current cost for the budget (less upfront RI costs): $32,465.29 (set to 45000) - se ajusto a 87% se escribio al dueno para revisar budget
-Document Processing DRS - 78801	98744214-543f-46b1-9f81-c986ec1c432e	Prod	jessica.mora@evertecinc.com	Jennis.Cordero@evertecinc.com	6600 - Current cost for the budget: $5,479.24 - se ajusto a 90% se escribio al dueno para revisar budget
-HRSense se resolvio para un budget actualizado para 2021
-evtc-cps-multicliente 78601	3e527659-51a8-4f6e-9214-c5a728456508	Prod	92155 - Current cost for the budget: $75,378.18 - se ajusto a 87% se escribio al dueno para revisar budget
 
 
 
