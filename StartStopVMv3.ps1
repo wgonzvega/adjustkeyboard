@@ -8,13 +8,13 @@ az.resources
 
 #Global variables
 
-<#For Evertecllc Chile & Multiclientes
+#For Evertecllc Chile & Multiclientes
 $tenant1 = "2b5b7d77-f19b-4c6d-b180-5768c09ad43b"
 $sub1 = "3e527659-51a8-4f6e-9214-c5a728456508"
 $sub2 = "ea2697d1-9ec5-46ed-8bc6-c81bea17abd1"
 #>
 
-#Private test area
+<#Private test area
 $tenant1 = "3eca7dff-7c23-43b9-9551-7365b93d4f97"
 $sub1 = "6cfeca43-6518-489d-9a83-f0a9bb0cba5b"
 $sub2 = ""
@@ -48,10 +48,10 @@ Function domenu {
     write-host "`n`nApplications:"
     
     #Evertecllc
-    #write-host "`n1- Paya" "& Paye (CPS Multiclientes)" "`n2- Pays (CPS Chile)"
+    write-host "`n1- Paya" "& Paye (CPS Multiclientes)" "`n2- Pays (CPS Chile)"
 
     #Private
-    write-host "`n1- Pay as you Go"
+    #write-host "`n1- Pay as you Go"
     
     $listrec = Read-Host "`nPlease select the application that you want to work with (Ctrl/C to cancel)"
     
