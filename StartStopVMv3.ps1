@@ -37,6 +37,7 @@ function docontext {
     Clear-Host 
     Clear-AzContext -Force
     Connect-AzAccount #-WarningAction:SilentlyContinue
+    #Connect-AzAccount -TenantId aae8bd45-1879-4a6e-ac08-16cc906ee6bf   for MFA
     $seltenant = Get-AzTenant -TenantId $tenant1  
     write-host "Selected tenant:"$seltenant.name
     domenu
