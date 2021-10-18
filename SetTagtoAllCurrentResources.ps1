@@ -98,16 +98,18 @@ function createRunbooks {
 
 function createSchedules {
     #Set schedule time
-    $StartTime1 = Get-Date "23:00:00"   #23:00:00 es las tres de la AM en horario PR
-    $StartTime2 = Get-Date "23:30:00"
+    $StartTime1 = Get-Date "3:00:00"   
+    $StartTime2 = Get-Date "3:30:00"
 
     #Create schedules
-    New-AzAutomationSchedule -AutomationAccountName $autoacc -Name "sch-RGtag1" -StartTime $StartTime1 -DayInterval 1 -ResourceGroupName $rg
-    New-AzAutomationSchedule -AutomationAccountName $autoacc -Name "sch-BKPtag1" -StartTime $StartTime2 -DayInterval 1 -ResourceGroupName $rg
+    New-AzAutomationSchedule -AutomationAccountName $autoacc -Name "sch-RGtag1" -TimeZone "PR" -StartTime $StartTime1 -DayInterval 1 -ResourceGroupName $rg
+    New-AzAutomationSchedule -AutomationAccountName $autoacc -Name "sch-BKPtag1" -TimeZone "PR" -StartTime $StartTime2 -DayInterval 1 -ResourceGroupName $rg
+    Start-Sleep -s 30 # wait for all resources to be deployed from the above command
 
     #Publish runbook
     Publish-AzAutomationRunbook -AutomationAccountName $autoacc -Name CreateTagToAllResourceGroups -ResourceGroupName $rg
     Publish-AzAutomationRunbook -AutomationAccountName $autoacc -Name CreateBackupTagToAllResources -ResourceGroupName $rg
+    Start-Sleep -s 60 # wait for all resources to be deployed from the above command
 
     #Link schedule to runbook
     Register-AzAutomationScheduledRunbook -Name CreateTagToAllResourceGroups -ResourceGroupName $rg -AutomationAccountName $autoacc -ScheduleName "sch-RGtag1"
