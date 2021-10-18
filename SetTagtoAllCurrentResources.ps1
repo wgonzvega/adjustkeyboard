@@ -10,9 +10,6 @@
 ############################################################################
 #                    CHANGE THIS PER SUBSCRIPTION                          #
 ############################################################################
-$mySubscription = "769f74a0-c7da-4b5a-8bc9-9ffb644a30eb"
-
-
 
 # RunBook for Update Tags - Applied at the Subscription level
 #
@@ -34,8 +31,10 @@ $mySubscription = "769f74a0-c7da-4b5a-8bc9-9ffb644a30eb"
 
 
 #Parameters -----------------------------------------------------------------------------------------------------
+$mySubscription = "TBD"
+
 #Code of the application the resource is associated with in the CMDB.
-$applicationCode = "EVPR"
+$applicationCode = "TBD"
 
 #Name of the application, service, or workload the resource is associated with in the CMDB
 $applicationName = "TBD" 
@@ -44,33 +43,33 @@ $applicationName = "TBD"
 $applicationModule = "TBD" 
 
 #Evertec group responsible for the implementation of the project
-$group = "Digital Solutions" 
+$group = "TBD" 
 
 #Owner of the application, workload, or service.(email)
-$ownerName = "wilfredo.rodriguez@evertecinc.com" 
+$ownerName = "TBD" 
 
 #Accounting cost center associated with this resource
 
-$costCenter = "77010"
+$costCenter = "TBD"
 
 #Deployment environment of this application, workload, or service
 $env = "TBD"
 
 #Person responsible for approving costs related to this resource.(email)
-$approver = "wilfredo.rodriguez@evertecinc.com"
+$approver = "TBD"
 
 #Top-level division of your company that owns the workload the resource belongs to.
 #In smaller organizations, this may represent a single corporate or shared top-level organizational element
-$businessUnit = "Payments Reporting"
+$businessUnit = "TBD"
 
 #User that requested the creation of this application.(email)
-$requestor = "denise.fuentes@evertecinc.com"
+$requestor = "TBD"
 
 #Service Level Agreement level of this application, workload, or service
 $serviceClass = "TBD"
 
 #Date when this application, workload, or service was first deployed
-$startDate = "2021"
+$startDate = "TBD"
 #End of parameters----------------------------------------------------------------------------------------------------
 
 
@@ -79,6 +78,39 @@ $startDate = "2021"
 
 #Update tags for all CURRENT services
 
+function createRunbooks {
+    New-AzAutomationRunbook -Name CreateTagToAllResourceGroups -Type PowerShell -ResourceGroupName $rg -AutomationAccountName $autoacc
+    New-AzAutomationRunbook -Name CreateBackupTagToAllResources -Type PowerShell -ResourceGroupName $rg -AutomationAccountName $autoacc
+
+    #Put code into runbook
+    #In progress:
+    <#
+        $resourceGroupName = "MyResourceGroup"
+        $automationAccountName = "MyAutomatonAccount"
+        $runbookName = "Hello-World"
+        $scriptFolder = "c:\runbooks"
+        Import-AzAutomationRunbook -Path "$scriptfolder\Hello-World.ps1" -Name $runbookName -Type PowerShell -AutomationAccountName $automationAccountName -ResourceGroupName $resourceGroupName -Force
+        Publish-AzAutomationRunbook -Name $runbookName -AutomationAccountName $automationAccountName -ResourceGroupName $resourceGroupName
+    #>
+}
+
+function createSchedules {
+    #Set schedule time
+    $StartTime1 = Get-Date "23:00:00"
+    $StartTime2 = Get-Date "23:30:00"
+
+    #Create schedules
+    New-AzAutomationSchedule -AutomationAccountName $autoacc -Name "sch-RGtag1" -StartTime $StartTime1 -DayInterval 1 -ResourceGroupName $rg
+    New-AzAutomationSchedule -AutomationAccountName $autoacc -Name "sch-BKPtag1" -StartTime $StartTime2 -DayInterval 1 -ResourceGroupName $rg
+
+    #Publish runbook
+    Publish-AzAutomationRunbook -AutomationAccountName $autoacc -Name CreateTagToAllResourceGroups -ResourceGroupName $rg
+    Publish-AzAutomationRunbook -AutomationAccountName $autoacc -Name CreateBackupTagToAllResources -ResourceGroupName $rg
+
+    #Link schedule to runbook
+    Register-AzAutomationScheduledRunbook -Name CreateTagToAllResourceGroups -ResourceGroupName $rg -AutomationAccountName $autoacc -ScheduleName "sch-RGtag1"
+    Register-AzAutomationScheduledRunbook -Name CreateBackupTagToAllResources -ResourceGroupName $rg -AutomationAccountName $autoacc -ScheduleName "sch-BKPtag1"
+}
 
 function listSubscriptions {
     Clear-Host
@@ -87,7 +119,7 @@ function listSubscriptions {
         write-host $c "- " $list.Name
         $c ++
     }
-    $subscriptionID = Read-Host -Prompt 'Please enter the number of the SubscriptionId'
+    $subscriptionID = Read-Host -Prompt 'Please enter the number of the SubscriptionId (Ctrl/C to quit)'
     return $subscriptionlist[$subscriptionID]
 }
 
@@ -98,7 +130,7 @@ function selectSubscription {
 
 #Start
 Clear-Host
-$login = Read-Host -Prompt 'Do you want or need to login?(y/n)'
+$login = Read-Host -Prompt 'Do you want or need to login?(y/n), (Ctrl/C to quit)"'
 if ($login -eq "Y" -or $login -eq "y") {
     Connect-AzAccount
 }
@@ -108,6 +140,7 @@ $subscriptionlist = @(Get-AzSubscription)
 $mySubscription = listSubscriptions
 write-host "Connecting to subscription..."
 
+#function call:
 selectSubscription
 write-host $mySubscription.Name $mySubscription.Id
 
@@ -123,3 +156,9 @@ foreach($resourceList in $allResources){
 	Update-AzTag -ResourceId $resourceList.id -Tag $tags -Operation Merge
 
 }
+
+#function call:
+$rg = Read-Host "Please enter Automation Account Resource Group (Ctrl/C to quit)" 
+$autoacc = Read-Host "Please enter Automation Account name (Ctrl/C to quit)" 
+createRunbooks
+createSchedules

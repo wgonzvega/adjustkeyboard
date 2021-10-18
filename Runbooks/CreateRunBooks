@@ -1,0 +1,1 @@
+New-AzureRmAutomationRunbook -Name CreateTagToAllResourceGroups -Type PowerShell -ResourceGroupName rg-autoacc-01 -AutomationAccountName autoaccount
