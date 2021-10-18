@@ -88,7 +88,9 @@ function createRunbooks {
         $resourceGroupName = "MyResourceGroup"
         $automationAccountName = "MyAutomatonAccount"
         $runbookName = "Hello-World"
-        $scriptFolder = "c:\runbooks"
+        $osType = Read-host "What OS are you using"
+        #$WindowsscriptFolder = "c:\runbooks"
+        #$MacscriptFolder = "/runbooks"
         Import-AzAutomationRunbook -Path "$scriptfolder\Hello-World.ps1" -Name $runbookName -Type PowerShell -AutomationAccountName $automationAccountName -ResourceGroupName $resourceGroupName -Force
         Publish-AzAutomationRunbook -Name $runbookName -AutomationAccountName $automationAccountName -ResourceGroupName $resourceGroupName
     #>
@@ -96,7 +98,7 @@ function createRunbooks {
 
 function createSchedules {
     #Set schedule time
-    $StartTime1 = Get-Date "23:00:00"
+    $StartTime1 = Get-Date "23:00:00"   #23:00:00 es las tres de la AM en horario PR
     $StartTime2 = Get-Date "23:30:00"
 
     #Create schedules
