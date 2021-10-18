@@ -27,6 +27,7 @@
 #
 #
 #
+$modules = @("az.accounts", "az.compute", "az.automation", "az.storage", "az.resources", "az.profile")
 
 
 
@@ -79,24 +80,43 @@ $startDate = "TBD"
 #Update tags for all CURRENT services
 
 function createRunbooks {
+    write-host "Installing Automation Account Runbooks..."
     New-AzAutomationRunbook -Name CreateTagToAllResourceGroups -Type PowerShell -ResourceGroupName $rg -AutomationAccountName $autoacc
     New-AzAutomationRunbook -Name CreateBackupTagToAllResources -Type PowerShell -ResourceGroupName $rg -AutomationAccountName $autoacc
 
+    
+}
+
+function putCodeintoScript {
     #Put code into runbook
-    #In progress:
-    <#
-        $resourceGroupName = "MyResourceGroup"
-        $automationAccountName = "MyAutomatonAccount"
-        $runbookName = "Hello-World"
-        $osType = Read-host "What OS are you using"
-        #$WindowsscriptFolder = "c:\runbooks"
-        #$MacscriptFolder = "/runbooks"
-        Import-AzAutomationRunbook -Path "$scriptfolder\Hello-World.ps1" -Name $runbookName -Type PowerShell -AutomationAccountName $automationAccountName -ResourceGroupName $resourceGroupName -Force
-        Publish-AzAutomationRunbook -Name $runbookName -AutomationAccountName $automationAccountName -ResourceGroupName $resourceGroupName
-    #>
+    ##########################################
+    #
+    #
+    #               Important
+    #
+    #
+    ##########################################
+    write-host "Installing Automation Account Powershell script code..."
+        $osType = Read-host "What OS are you using (Win = 1, Mac = 2), (Ctrl/c to quit)"
+        if ($osType -eq "1") {
+        #Win
+        $path1 = "c:\runbooks\CreateTagToAllResourceGroups.ps1"
+        $path1 = "c:\runbooks\CreateBackupTagToAllResources.ps1"
+        }elseif ($osType -eq "2") {   
+            #Mac
+            $path1 = "~/runbooks/CreateTagToAllResourceGroups.ps1"
+            $path2 = "~/runbooks/CreateBackupTagToAllResources.ps1"
+        }else {
+            exit
+        }
+        Import-AzAutomationRunbook -Path $path1 -Name CreateTagToAllResourceGroups -Type PowerShell -AutomationAccountName $autoacc -ResourceGroupName $rg -Force
+        Import-AzAutomationRunbook -Path $path2 -Name CreateBackupTagToAllResources -Type PowerShell -AutomationAccountName $autoacc -ResourceGroupName $rg -Force
+        Publish-AzAutomationRunbook -Name CreateTagToAllResourceGroups -AutomationAccountName $autoacc -ResourceGroupName $rg
+        Publish-AzAutomationRunbook -Name CreateBackupTagToAllResources -AutomationAccountName $autoacc -ResourceGroupName $rg
 }
 
 function createSchedules {
+    write-host "Installing Automation Account Schedules..."
     #Set schedule time
     $StartTime1 = Get-Date "3:00:00"   
     $StartTime2 = Get-Date "3:30:00"
@@ -116,6 +136,18 @@ function createSchedules {
     Register-AzAutomationScheduledRunbook -Name CreateBackupTagToAllResources -ResourceGroupName $rg -AutomationAccountName $autoacc -ScheduleName "sch-BKPtag1"
 }
 
+
+function setModules{
+    write-host "Installing Automation Account Modules..."
+    foreach($dep in $modules){
+        $module = Find-Module -Name $dep
+        $link = $module.RepositorySourceLocation + "/package/" + $module.Name + "/" + $module.Version
+        New-AzAutomationModule -AutomationAccountName $autoacc -Name $module.Name -ContentLinkUri $link -ResourceGroupName $rg
+        Start-Sleep -s 300
+    }
+}
+
+
 function listSubscriptions {
     Clear-Host
     $c = 0
@@ -123,7 +155,7 @@ function listSubscriptions {
         write-host $c "- " $list.Name
         $c ++
     }
-    $subscriptionID = Read-Host -Prompt 'Please enter the number of the SubscriptionId (Ctrl/C to quit)'
+    $subscriptionID = Read-Host -Prompt 'Please enter the number of the SubscriptionId (Ctrl/c to quit)'
     return $subscriptionlist[$subscriptionID]
 }
 
@@ -134,7 +166,7 @@ function selectSubscription {
 
 #Start
 Clear-Host
-$login = Read-Host -Prompt 'Do you want or need to login?(y/n), (Ctrl/C to quit)"'
+$login = Read-Host -Prompt 'Do you want or need to login?(y/n), (Ctrl/c to quit)"'
 if ($login -eq "Y" -or $login -eq "y") {
     Connect-AzAccount
 }
@@ -162,7 +194,9 @@ foreach($resourceList in $allResources){
 }
 
 #function call:
-$rg = Read-Host "Please enter Automation Account Resource Group (Ctrl/C to quit)" 
-$autoacc = Read-Host "Please enter Automation Account name (Ctrl/C to quit)" 
+$rg = Read-Host "Please enter Automation Account Resource Group (Ctrl/c to quit)" 
+$autoacc = Read-Host "Please enter Automation Account name (Ctrl/c to quit)" 
+setModules
 createRunbooks
 createSchedules
+putCodeintoScript

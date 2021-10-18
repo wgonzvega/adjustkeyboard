@@ -13,7 +13,7 @@
 $providers = @("Microsoft.Advisor", "Microsoft.Security", "Microsoft.AlertsManagement", "Microsoft.PolicyInsights", "Microsoft.Network", "Microsoft.EventHub", "Microsoft.Storage", `
         "Microsoft.Compute", "Microsoft.ResourceHealth", "Microsoft.SqlVirtualMachine", "Microsoft.RecoveryServices", "Microsoft.insights", `
         "Microsoft.Automation", "Microsoft.Sql", "Microsoft.OperationalInsights", "Microsoft.OperationsManagement", "Microsoft.SecurityInsights", `
-        "Microsoft.ManagedIdentity", "Microsoft.Capacity")
+        "Microsoft.ManagedIdentity", "Microsoft.Capacity","Microsoft.Blueprint")
 
 function setProviders {
     foreach ($list in $providers) {
@@ -21,6 +21,8 @@ function setProviders {
         write-host $list
     }
 }
+
+
 
 function listSubscriptions {
     Clear-Host
