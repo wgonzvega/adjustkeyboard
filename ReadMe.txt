@@ -9,7 +9,6 @@
 
 1- Entrar a suscripcion en Partner Portal como usuario llc
 1.1 - Crear suscripción bajo EvertecLLC
-
 2- Desde Partner Portal entral a Azure Portal
 3- Crear usuario (tu usuario como Owner) a nivel de la suscripcion nueva como Foreign Principal
 4- Logout del portal y entrar con tu usuario, mover suscripcion bajo el Management Group llamado Evertec LLC
