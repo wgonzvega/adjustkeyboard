@@ -1,5 +1,7 @@
 #EvertecLLC: $tenant = "2b5b7d77-f19b-4c6d-b180-5768c09ad43b"
 #BPPR:       $tenant = "aae8bd45-1879-4a6e-ac08-16cc906ee6bf"
+#TestTenant: $tenant = "3eca7dff-7c23-43b9-9551-7365b93d4f97"
+
 
 $tenant = "2b5b7d77-f19b-4c6d-b180-5768c09ad43b"
 #set off environmental warnings, set this to false for debbuging
